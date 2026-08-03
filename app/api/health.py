@@ -41,27 +41,23 @@ def health_check() -> dict:
         "livekit": False,
     }
 
-    errors: dict[str, str] = {}
-
     try:
         checks["postgres"] = check_postgres()
-    except Exception as exc:  # pragma: no cover
-        errors["postgres"] = str(exc)
+    except Exception:  # pragma: no cover
+        pass
 
     try:
         checks["redis"] = check_redis()
-    except Exception as exc:  # pragma: no cover
-        errors["redis"] = str(exc)
+    except Exception:  # pragma: no cover
+        pass
 
     try:
         checks["livekit"] = check_livekit()
-    except Exception as exc:  # pragma: no cover
-        errors["livekit"] = str(exc)
+    except Exception:  # pragma: no cover
+        pass
 
     overall_ok = all(checks.values())
     response = {"status": "ok" if overall_ok else "degraded", "checks": checks}
-    if errors:
-        response["errors"] = errors
 
     if not overall_ok:
         raise HTTPException(status_code=503, detail=response)
